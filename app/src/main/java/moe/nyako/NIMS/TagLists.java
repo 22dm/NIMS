@@ -2,19 +2,15 @@ package moe.nyako.NIMS;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutCompat;
-import android.view.DragAndDropPermissions;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -27,7 +23,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class TagLists extends AppCompatActivity implements View.OnClickListener{
+public class TagLists extends AppCompatActivity {
 
     public static String adminOrgName = "";
     ArrayList<TableLayout> tableLayouts = new ArrayList<>();
@@ -60,19 +56,19 @@ public class TagLists extends AppCompatActivity implements View.OnClickListener{
                         linearLayout.addView(card);
 
                 item.setTitle("仅显示收藏");
-                item.setIcon(R.drawable.btn_submit);
+                item.setIcon(R.drawable.btn_show_favor);
                 showall = true;
             } else {
-                    for (ImageButton pinButton : pinButtons)
-                        ((LinearLayout) pinButton.getParent()).removeView(pinButton);
+                for (ImageButton pinButton : pinButtons)
+                    ((LinearLayout) pinButton.getParent()).removeView(pinButton);
 
-                    for (CardView card : cards)
-                        if (!favors.get(cards.indexOf(card)))
-                            linearLayout.removeView(card);
+                for (CardView card : cards)
+                    if (!favors.get(cards.indexOf(card)))
+                        linearLayout.removeView(card);
 
-                    item.setTitle("显示所有");
-                    item.setIcon(R.drawable.btn_xlsx);
-                    showall = false;
+                item.setTitle("显示所有");
+                item.setIcon(R.drawable.btn_show_all);
+                showall = false;
             }
         } catch (Exception e) {
             Toast.makeText(TagLists.this, e.toString(), Toast.LENGTH_SHORT).show();
@@ -174,7 +170,17 @@ public class TagLists extends AppCompatActivity implements View.OnClickListener{
                 ImageButton adminButton = new ImageButton(this);
                 adminButton.setImageDrawable(getResources().getDrawable(R.drawable.btn_edit));
                 adminButton.setBackground(null);
-                adminButton.setOnClickListener(this);
+                adminButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(TagLists.this, EditTags.class);
+                        if (showall)
+                            adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(1)).getText().toString().substring(2);
+                        else
+                            adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(0)).getText().toString().substring(2);
+                        startActivity(intent);
+                    }
+                });
                 adminButton.setMinimumWidth(36);
                 if (object.getInt("admin") == 0)
                     adminButton.setVisibility(View.INVISIBLE);
@@ -237,16 +243,6 @@ public class TagLists extends AppCompatActivity implements View.OnClickListener{
         } catch (Exception e) {
             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void onClick(View v) {
-        Intent intent = new Intent(this, EditTags.class);
-        if(showall)
-            adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(1)).getText().toString().substring(2);
-        else
-            adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(0)).getText().toString().substring(2);
-            startActivity(intent);
     }
 }
 

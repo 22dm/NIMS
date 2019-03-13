@@ -17,6 +17,9 @@ public class MainActivity extends NFCRead {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //设置标题
+        setTitle("南京大学信息管理系统");
+
         //允许主线程访问网络
         StrictMode.ThreadPolicy policy=new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
