@@ -22,7 +22,7 @@ GET：```<server>/getTags?id=<userId>```
 
 返回：
 
-tags 列表，每一项包含 orgName（组织名称），admin（是否为管理员），以及学生在该组织的 tag 列表
+tags 列表，每一项包含 orgName（组织名称），admin（是否为管理员），favor（是否收藏），以及学生在该组织的 tag 列表
 
 ``` json
 {
@@ -30,6 +30,7 @@ tags 列表，每一项包含 orgName（组织名称），admin（是否为管�
     {
       "orgName": "环保社",
       "admin": 1,
+      "favor": 0,
       "tag": [
         {"活动时长": "35"},
         {"发展新社员": "24"},
@@ -40,6 +41,7 @@ tags 列表，每一项包含 orgName（组织名称），admin（是否为管�
     {
       "orgName": "数学分析",
       "admin": 1,
+      "favor": 1,
       "tag": [
         {"第一次作业": "90"},
         {"第二次作业": "95"},

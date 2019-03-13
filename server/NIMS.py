@@ -32,17 +32,21 @@ def getTags():
   
   conn = sqlite3.connect('NIMS.db')
   cursor = conn.cursor()
-  cursor.execute('select * from id_tag where id=\'' + uid + '\'')
+  cursor.execute('select * from id_tag where id=\'' + uid + '\' order by tag')
   tagList = cursor.fetchall()
   orgNames = list(set([tag[1] for tag in tagList]))
 
   cursor.execute('select * from org where admin=\'' + uid + '\'')
   orgAdmin = list(set([tag[0] for tag in cursor.fetchall()]))
+
+  cursor.execute('select * from favor where id=\'' + uid + '\'')
+  orgFavor = list(set([favor[0] for favor in cursor.fetchall()]))
   cursor.close()
   conn.close()
 
   res = {'tags': [{'orgName': org,
                   'admin': 1 if org in orgAdmin else 0,
+                  'favor': 1 if org in orgFavor else 0,
                   'tag': [{tag[2]: tag[3]} for tag in tagList if tag[1] == org]}
                   for org in orgNames]}
 
@@ -112,6 +116,32 @@ def getXlsx():
   response = make_response(send_file(fileName))
   response.headers["Content-Disposition"] = "attachment; filename={0}; filename*=utf-8''{0}".format(quote(fileName))
   return response
+
+@app.route('/favor', methods=['GET', 'POST'])
+def favor():
+  favorData = json.loads(unquote(str(request.get_data())[2:-1]))
+
+  uid = favorData['id']
+  oname = favorData['oname']
+  res = {}
+
+  conn = sqlite3.connect('NIMS.db')
+  cursor = conn.cursor()
+
+  cursor.execute('select * from favor where oname=\'' + oname + '\' and id = \'' + uid + '\'')
+  favorList = cursor.fetchall()
+
+  if not favorList:
+    cursor.execute('insert into favor values (\'' + oname + '\', \'' + uid + '\')')
+    res["status"] = 1
+  else:
+    cursor.execute('delete from favor where oname=\'' + oname + '\' and id = \'' + uid + '\'')
+    res["status"] = 0
+
+  cursor.close()
+  conn.commit()
+
+  return json.dumps(res)
 
 if __name__ =='__main__':
   app.run('0.0.0.0', port='2333', debug=True)
