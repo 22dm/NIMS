@@ -4,7 +4,7 @@
 import json
 import sqlite3
 from flask import Flask, request, make_response, send_file
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 from openpyxl import Workbook
 
 app = Flask(__name__)
@@ -50,11 +50,11 @@ def getTags():
 
 @app.route('/editTags', methods=['GET', 'POST'])
 def editTags():
-  edits = json.loads(request.get_data())
+  edits = json.loads(unquote(str(request.get_data())[2:-1]))
 
   oname = edits['orgName']
   tags = edits['tags']
-  changes = edits['changes']
+  changes = edits['change']
 
   conn = sqlite3.connect('NIMS.db')
   cursor = conn.cursor()
@@ -77,7 +77,7 @@ def editTags():
           cursor.execute('insert into id_tag values (\'' + change['id'] + '\', \'' + oname + '\', \'' + tag + '\',\'' + change['value'][pos] + '\')')
 
   cursor.close()
-  conn.close()
+  conn.commit()
 
   return json.dumps({"status": 0})
 
