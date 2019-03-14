@@ -17,6 +17,11 @@ public class MainActivity extends NFCRead {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        nfcInit();
+
+        if(nfc_enabled)
+            findViewById(R.id.nfc_info).setVisibility(View.VISIBLE);
+
         //设置标题
         setTitle("南京大学信息管理系统");
 

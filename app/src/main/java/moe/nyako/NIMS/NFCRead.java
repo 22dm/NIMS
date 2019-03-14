@@ -5,21 +5,13 @@ import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 public class NFCRead extends AppCompatActivity {
 
     public NfcAdapter nfcAdapter;
     public PendingIntent pendingIntent;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        nfcInit();
-    }
+    public boolean nfc_enabled = false;
 
     //初始化 NFC 硬件
     public void nfcInit() {
@@ -27,10 +19,7 @@ public class NFCRead extends AppCompatActivity {
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this,
                 getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 
-        if (nfcAdapter == null || !nfcAdapter.isEnabled()) {
-            Toast.makeText(this, "设备不支持 NFC 或未开启", Toast.LENGTH_LONG).show();
-            return;
-        }
+        nfc_enabled = nfcAdapter != null || nfcAdapter.isEnabled();
 
         onNewIntent(getIntent());
     }

@@ -102,6 +102,8 @@ public class EditTags extends NFCRead {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_tags);
 
+        nfcInit();
+
         //设置标题
         setTitle(TagLists.adminOrgName);
 

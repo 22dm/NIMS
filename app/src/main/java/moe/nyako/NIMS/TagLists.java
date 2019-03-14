@@ -229,7 +229,6 @@ public class TagLists extends AppCompatActivity {
                     value.setText(tag.getString(tag.keys().next()));
 
                     name.setTextSize(20);
-                    name.setMinimumHeight(48);
                     value.setTextSize(20);
 
                     name.setWidth(600);
