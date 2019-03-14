@@ -62,7 +62,8 @@ def editTags():
             value = str(int(tagDict[change['id']]) - int(value[1:]))
           cursor.execute('update id_tag set val = ' + value + ' where id = \'' + change['id'] + '\' and oname = \'' + oname + '\' and tag = \'' + tag + '\'')
         else:
-          cursor.execute('insert into id_tag values (\'' + change['id'] + '\', \'' + oname + '\', \'' + tag + '\',\'' + change['value'][pos] + '\')')
+          value = str(int(value))
+          cursor.execute('insert into id_tag values (\'' + change['id'] + '\', \'' + oname + '\', \'' + tag + '\',\'' + value + '\')')
 
   cursor.close()
   conn.commit()
