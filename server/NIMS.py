@@ -10,22 +10,6 @@ from openpyxl import Workbook
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-@app.route('/auth')
-def auth():
-  uid = request.args.get('id')
-  pwd = request.args.get('pwd')
-  authed = verfy(uid, pwd)
-  res = {'auth': 1 if authed else 0};
-  return json.dumps(res);
-
-def verfy(uid, pwd):
-  conn = sqlite3.connect('NIMS.db')
-  cursor = conn.cursor()
-  cursor.execute('select pwd from id_pwd where id=\'' + uid + '\'')
-  values = cursor.fetchall()
-  conn.close()
-  return values and pwd == values[0][0];
-
 @app.route('/getTags')
 def getTags():
   uid = request.args.get('id')

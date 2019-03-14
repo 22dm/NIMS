@@ -1,19 +1,5 @@
 # NIMP API 规范
 
-## 验证密码
-
-发送：
-
-GET：```<server>/auth?id=<userId>&pwd=<userPwd>```
-
-返回：
-
-auth：0 失败，1 成功
-
-``` json
-{"auth": 1}
-```
-
 ## 获取用户全部 Tag
 
 发送：
