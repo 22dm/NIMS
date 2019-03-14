@@ -17,10 +17,14 @@ class APICall {
     //验证用户名与密码
     boolean auth(String userId, String userPwd) {
         try {
-            String authResultJson = sendGet("auth", "id=" + userId + "&pwd=" + userPwd);
-            JSONObject authResult = new JSONObject(authResultJson);
-            int res = authResult.getInt("auth");
-            return res == 1;
+            String url = "http://mids.nju.edu.cn/_ids_mobile/webLogin20_2?loginLT=0000000-0000-0000-0000-000000000000&username=" +
+                    URLEncoder.encode(userId, "UTF-8") + "&password=" + URLEncoder.encode(userPwd, "UTF-8");
+
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+
+            return con.getResponseCode() == 200;
         } catch (Exception ignore) {
             return false;
         }

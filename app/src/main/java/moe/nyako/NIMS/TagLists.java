@@ -162,7 +162,7 @@ public class TagLists extends AppCompatActivity {
                         LinearLayout.LayoutParams.MATCH_PARENT, 1));
                 orgNameTextView.setText("  " + object.getString("orgName"));
                 orgNameTextView.setTextSize(26);
-                orgNameTextView.setTextColor(Color.parseColor("#000000"));
+                orgNameTextView.setTextColor(getResources().getColor(R.color.colorPrimary));
                 orgNameTextView.setGravity(Gravity.CENTER_VERTICAL);
                 cardTitle.addView(orgNameTextView);
 
@@ -229,6 +229,7 @@ public class TagLists extends AppCompatActivity {
                     value.setText(tag.getString(tag.keys().next()));
 
                     name.setTextSize(20);
+                    name.setMinimumHeight(48);
                     value.setTextSize(20);
 
                     name.setWidth(600);
