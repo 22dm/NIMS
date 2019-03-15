@@ -1,7 +1,6 @@
 package moe.nyako.NIMS;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 public class TagLists extends AppCompatActivity {
 
     public static String adminOrgName = "";
-    public static Boolean admin = false;
+    public static Boolean superAdmin = false;
     ArrayList<TableLayout> tableLayouts = new ArrayList<>();
     ArrayList<CardView> cards = new ArrayList<>();
     ArrayList<ImageButton> pinButtons = new ArrayList<>();
@@ -168,13 +167,13 @@ public class TagLists extends AppCompatActivity {
                 cardTitle.addView(orgNameTextView);
 
                 //显示管理按钮（默认隐藏）
-                Boolean isOp = false;
-                Boolean isAdmin = object.getInt("admin") == 1;
+                Boolean isAdmin = false;
+                Boolean isSuperAdmin = object.getInt("superAdmin") == 1;
 
                 ImageButton adminButton = new ImageButton(this);
                 adminButton.setImageDrawable(getResources().getDrawable(R.drawable.btn_edit));
                 adminButton.setBackground(null);
-                adminButton.setContentDescription(isAdmin ? "管理" : "操作");
+                adminButton.setContentDescription(isSuperAdmin ? "超级管理" : "管理");
                 adminButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -183,7 +182,7 @@ public class TagLists extends AppCompatActivity {
                             adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(1)).getText().toString().substring(2);
                         else
                             adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(0)).getText().toString().substring(2);
-                        admin = v.getContentDescription() == "管理";
+                        superAdmin = v.getContentDescription() == "超级管理";
                         startActivity(intent);
                     }
                 });
@@ -225,8 +224,8 @@ public class TagLists extends AppCompatActivity {
                 for (int j = 0; j < array.length(); j++) {
                     JSONObject tag = array.getJSONObject(j);
 
-                    if(tag.keys().next().equals("操作员")) {
-                        isOp = tag.getString("操作员").equals("1");
+                    if(tag.keys().next().equals("管理员")) {
+                        isAdmin = tag.getString("管理员").equals("1");
                         continue;
                     }
 
@@ -250,8 +249,8 @@ public class TagLists extends AppCompatActivity {
                     table.addView(tableRow);
                 }
 
-                //如果为管理员或操作员，显示编辑按钮
-                if(isAdmin || isOp)
+                //如果为超级管理员或管理员，显示编辑按钮
+                if(isSuperAdmin || isAdmin)
                     adminButton.setVisibility(View.VISIBLE);
             }
         } catch (Exception e) {

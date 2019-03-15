@@ -33,8 +33,8 @@ def getTags():
 
     schoolBoardOrgNames = list(set([tag[1] for tag in schoolBoardTagList]) - set(orgNames))
 
-    cursor.execute('select * from org where admin=\'' + uid + '\'')
-    orgAdmin = list(set([tag[0] for tag in cursor.fetchall()]))
+    cursor.execute('select * from org where superadmin=\'' + uid + '\'')
+    orgSuperAdmin = list(set([tag[0] for tag in cursor.fetchall()]))
 
     cursor.execute('select * from favor where id=\'' + uid + '\'')
     orgFavor = list(set([favor[0] for favor in cursor.fetchall()]))
@@ -42,12 +42,12 @@ def getTags():
     conn.close()
 
     res = {'tags': [{'orgName': org,
-                     'admin': 1 if org in orgAdmin else 0,
+                     'superAdmin': 1 if org in orgSuperAdmin else 0,
                      'favor': 1 if org in orgFavor else 0,
                      'tag': [{tag[2]: tag[3]} for tag in personTagList if tag[1] == org]}
                     for org in orgNames] +
                     [{'orgName': org,
-                    'admin': 1 if org in orgAdmin else 0,
+                    'superAdmin': 1 if org in orgSuperAdmin else 0,
                     'favor': 1 if org in orgFavor else 0,
                     'tag': [{tag[2]: tag[3]} for tag in schoolBoardTagList if tag[1] == org]}
                     for org in schoolBoardOrgNames]}

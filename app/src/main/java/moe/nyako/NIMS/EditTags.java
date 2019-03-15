@@ -62,10 +62,10 @@ public class EditTags extends NFCRead {
             tags.put(((EditText) findViewById(R.id.key2)).getText().toString());
             tags.put(((EditText) findViewById(R.id.key3)).getText().toString());
 
-            //只有管理员可以修改“操作员”
-            if (!TagLists.admin)
-                if (tags.getString(0).equals("操作员") || tags.getString(1).equals("操作员") || tags.getString(2).equals("操作员")) {
-                    Toast.makeText(this, "权限不足，只有本组织管理员才可修改“操作员”Tag", Toast.LENGTH_SHORT).show();
+            //只有超级管理员可以修改“管理员”
+            if (!TagLists.superAdmin)
+                if (tags.getString(0).equals("管理员") || tags.getString(1).equals("管理员") || tags.getString(2).equals("管理员")) {
+                    Toast.makeText(this, "权限不足，只有本组织超级管理员才可修改“管理员” Tag", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
