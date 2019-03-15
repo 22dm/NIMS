@@ -18,10 +18,20 @@ def getTags():
 
     conn = sqlite3.connect('NIMS.db')
     cursor = conn.cursor()
-    cursor.execute('select * from id_tag where id=\'' +
-                   uid + '\' order by tag')
-    tagList = cursor.fetchall()
-    orgNames = list(set([tag[1] for tag in tagList]))
+    cursor.execute('select * from id_tag where id=\'' + uid + '\' order by tag')
+    personTagList = cursor.fetchall()
+    orgNames = list(set([tag[1] for tag in personTagList]))
+
+    cursor.execute('select * from id_tag where id=\'@\' order by tag')
+    orgTagList = cursor.fetchall()
+
+    cursor.execute('select * from id_tag where id=\'*\' order by tag')
+    schoolBoardTagList = cursor.fetchall()
+
+    personTagList.extend(orgTagList)
+    personTagList.extend(schoolBoardTagList)
+
+    schoolBoardOrgNames = list(set([tag[1] for tag in schoolBoardTagList]) - set(orgNames))
 
     cursor.execute('select * from org where admin=\'' + uid + '\'')
     orgAdmin = list(set([tag[0] for tag in cursor.fetchall()]))
@@ -34,8 +44,13 @@ def getTags():
     res = {'tags': [{'orgName': org,
                      'admin': 1 if org in orgAdmin else 0,
                      'favor': 1 if org in orgFavor else 0,
-                     'tag': [{tag[2]: tag[3]} for tag in tagList if tag[1] == org]}
-                    for org in orgNames]}
+                     'tag': [{tag[2]: tag[3]} for tag in personTagList if tag[1] == org]}
+                    for org in orgNames] +
+                    [{'orgName': org,
+                    'admin': 1 if org in orgAdmin else 0,
+                    'favor': 1 if org in orgFavor else 0,
+                    'tag': [{tag[2]: tag[3]} for tag in schoolBoardTagList if tag[1] == org]}
+                    for org in schoolBoardOrgNames]}
 
     return json.dumps(res)
 
@@ -67,6 +82,10 @@ def editTags():
                     elif value[0] == '-':
                         value = str(
                             int(tagDict[change['id']]) - int(value[1:]))
+                    elif value == "del":
+                        cursor.execute('delete from id_tag where id = \'' +
+                                   change['id'] + '\' and oname = \'' + oname + '\' and tag = \'' + tag + '\'')
+                        continue;
                     cursor.execute('update id_tag set val = ' + value + ' where id = \'' +
                                    change['id'] + '\' and oname = \'' + oname + '\' and tag = \'' + tag + '\'')
                 else:
