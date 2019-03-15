@@ -21,7 +21,6 @@ public class EditTags extends NFCRead {
 
     LinearLayout lowerTableLayout;
 
-
     //绘制标题栏按钮
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -62,6 +61,14 @@ public class EditTags extends NFCRead {
             tags.put(((EditText) findViewById(R.id.key1)).getText().toString());
             tags.put(((EditText) findViewById(R.id.key2)).getText().toString());
             tags.put(((EditText) findViewById(R.id.key3)).getText().toString());
+
+            //只有管理员可以修改“操作员”
+            if (!TagLists.admin)
+                if (tags.getString(0).equals("操作员") || tags.getString(1).equals("操作员") || tags.getString(2).equals("操作员")) {
+                    Toast.makeText(this, "权限不足，只有本组织管理员才可修改“操作员”Tag", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
             data.put("tags", tags);
 
             //添加修改内容

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 public class TagLists extends AppCompatActivity {
 
     public static String adminOrgName = "";
+    public static Boolean admin = false;
     ArrayList<TableLayout> tableLayouts = new ArrayList<>();
     ArrayList<CardView> cards = new ArrayList<>();
     ArrayList<ImageButton> pinButtons = new ArrayList<>();
@@ -100,7 +101,7 @@ public class TagLists extends AppCompatActivity {
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-                lp.setMargins(10, 20, 10, 20);
+                lp.setMargins(10, 10, 10, 20);
                 card.setLayoutParams(lp);
                 card.setRadius(30);
                 cards.add(card);
@@ -166,10 +167,14 @@ public class TagLists extends AppCompatActivity {
                 orgNameTextView.setGravity(Gravity.CENTER_VERTICAL);
                 cardTitle.addView(orgNameTextView);
 
-                //显示管理按钮
+                //显示管理按钮（默认隐藏）
+                Boolean isOp = false;
+                Boolean isAdmin = object.getInt("admin") == 1;
+
                 ImageButton adminButton = new ImageButton(this);
                 adminButton.setImageDrawable(getResources().getDrawable(R.drawable.btn_edit));
                 adminButton.setBackground(null);
+                adminButton.setContentDescription(isAdmin ? "管理" : "操作");
                 adminButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -178,12 +183,12 @@ public class TagLists extends AppCompatActivity {
                             adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(1)).getText().toString().substring(2);
                         else
                             adminOrgName = ((TextView) ((LinearLayout) v.getParent()).getChildAt(0)).getText().toString().substring(2);
+                        admin = v.getContentDescription() == "管理";
                         startActivity(intent);
                     }
                 });
                 adminButton.setMinimumWidth(36);
-                if (object.getInt("admin") == 0)
-                    adminButton.setVisibility(View.INVISIBLE);
+                adminButton.setVisibility(View.INVISIBLE);
                 cardTitle.addView(adminButton);
 
                 //显示展开按钮
@@ -220,6 +225,11 @@ public class TagLists extends AppCompatActivity {
                 for (int j = 0; j < array.length(); j++) {
                     JSONObject tag = array.getJSONObject(j);
 
+                    if(tag.keys().next().equals("操作员")) {
+                        isOp = tag.getString("操作员").equals("1");
+                        continue;
+                    }
+
                     TableRow tableRow = new TableRow(this);
 
                     TextView name = new TextView(this);
@@ -239,6 +249,10 @@ public class TagLists extends AppCompatActivity {
 
                     table.addView(tableRow);
                 }
+
+                //如果为管理员或操作员，显示编辑按钮
+                if(isAdmin || isOp)
+                    adminButton.setVisibility(View.VISIBLE);
             }
         } catch (Exception e) {
             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
