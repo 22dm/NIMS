@@ -81,3 +81,22 @@ GET：```<server>/getXlsx?id=<userId>```
 返回：
 
 xlsx 文件
+
+## 添加新的组织并设置超级管理员
+
+发送：
+
+POST：```<server>/setSuperAdmin```
+
+``` json
+{
+  "oname": "高等代数",
+  "id": "171840773"
+}
+```
+
+返回：
+
+``` json
+{"status": 0}
+```

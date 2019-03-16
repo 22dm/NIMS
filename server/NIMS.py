@@ -18,25 +18,26 @@ def getTags():
 
     conn = sqlite3.connect('NIMS.db')
     cursor = conn.cursor()
-    cursor.execute('select * from id_tag where id=\'' + uid + '\' order by tag')
+    cursor.execute('select * from id_tag where id = ? order by tag', (uid,))
     personTagList = cursor.fetchall()
     orgNames = list(set([tag[1] for tag in personTagList]))
 
-    cursor.execute('select * from id_tag where id=\'@\' order by tag')
+    cursor.execute('select * from id_tag where id = \'@\' order by tag')
     orgTagList = cursor.fetchall()
 
-    cursor.execute('select * from id_tag where id=\'*\' order by tag')
+    cursor.execute('select * from id_tag where id = \'*\' order by tag')
     schoolBoardTagList = cursor.fetchall()
 
     personTagList.extend(orgTagList)
     personTagList.extend(schoolBoardTagList)
 
-    schoolBoardOrgNames = list(set([tag[1] for tag in schoolBoardTagList]) - set(orgNames))
+    schoolBoardOrgNames = list(
+        set([tag[1] for tag in schoolBoardTagList]) - set(orgNames))
 
-    cursor.execute('select * from org where superadmin=\'' + uid + '\'')
+    cursor.execute('select * from org where superadmin = ?', (uid,))
     orgSuperAdmin = list(set([tag[0] for tag in cursor.fetchall()]))
 
-    cursor.execute('select * from favor where id=\'' + uid + '\'')
+    cursor.execute('select * from favor where id = ?', (uid,))
     orgFavor = list(set([favor[0] for favor in cursor.fetchall()]))
     cursor.close()
     conn.close()
@@ -46,11 +47,11 @@ def getTags():
                      'favor': 1 if org in orgFavor else 0,
                      'tag': [{tag[2]: tag[3]} for tag in personTagList if tag[1] == org]}
                     for org in orgNames] +
-                    [{'orgName': org,
-                    'superAdmin': 1 if org in orgSuperAdmin else 0,
-                    'favor': 1 if org in orgFavor else 0,
-                    'tag': [{tag[2]: tag[3]} for tag in schoolBoardTagList if tag[1] == org]}
-                    for org in schoolBoardOrgNames]}
+           [{'orgName': org,
+             'superAdmin': 1 if org in orgSuperAdmin else 0,
+             'favor': 1 if org in orgFavor else 0,
+             'tag': [{tag[2]: tag[3]} for tag in schoolBoardTagList if tag[1] == org]}
+            for org in schoolBoardOrgNames]}
 
     return json.dumps(res)
 
@@ -68,8 +69,8 @@ def editTags():
 
     for tag in tags:
         pos = tags.index(tag)
-        cursor.execute('select * from id_tag where oname=\'' +
-                       oname + '\' and tag = \'' + tag + '\'')
+        cursor.execute(
+            'select * from id_tag where oname = ? and tag = ?', (oname, tag))
         tagDict = {tag[0]: tag[3] for tag in cursor.fetchall()}
 
         for change in changes:
@@ -83,15 +84,15 @@ def editTags():
                         value = str(
                             int(tagDict[change['id']]) - int(value[1:]))
                     elif value == "del":
-                        cursor.execute('delete from id_tag where id = \'' +
-                                   change['id'] + '\' and oname = \'' + oname + '\' and tag = \'' + tag + '\'')
-                        continue;
-                    cursor.execute('update id_tag set val = ' + value + ' where id = \'' +
-                                   change['id'] + '\' and oname = \'' + oname + '\' and tag = \'' + tag + '\'')
+                        cursor.execute(
+                            'delete from id_tag where id = ? and oname = ? and tag = ?', (change['id'], oname, tag))
+                        continue
+                    cursor.execute(
+                        'update id_tag set val = ? where id = ? and oname = ? and tag = ?', (value, change['id'], oname, tag))
                 else:
                     value = str(int(value))
-                    cursor.execute('insert into id_tag values (\'' +
-                                   change['id'] + '\', \'' + oname + '\', \'' + tag + '\',\'' + value + '\')')
+                    cursor.execute(
+                        'insert into id_tag values (?, ?, ?, ?)', (change['id'], oname, tag, value))
 
     cursor.close()
     conn.commit()
@@ -106,7 +107,7 @@ def getXlsx():
     conn = sqlite3.connect('NIMS.db')
 
     cursor = conn.cursor()
-    cursor.execute('select * from id_tag where oname=\'' + oname + '\'')
+    cursor.execute('select * from id_tag where oname = ?', (oname,))
     tagList = cursor.fetchall()
     cursor.close()
 
@@ -145,17 +146,16 @@ def favor():
     conn = sqlite3.connect('NIMS.db')
     cursor = conn.cursor()
 
-    cursor.execute('select * from favor where oname=\'' +
-                   oname + '\' and id = \'' + uid + '\'')
+    cursor.execute(
+        'select * from favor where oname = ? and id = ?', (oname, uid))
     favorList = cursor.fetchall()
 
     if not favorList:
-        cursor.execute('insert into favor values (\'' +
-                       oname + '\', \'' + uid + '\')')
+        cursor.execute('insert into favor values (?, ?)', (oname, uid))
         res["status"] = 1
     else:
-        cursor.execute('delete from favor where oname=\'' +
-                       oname + '\' and id = \'' + uid + '\'')
+        cursor.execute(
+            'delete from favor where oname = ? and id = ?', (oname, uid))
         res["status"] = 0
 
     cursor.close()
@@ -164,5 +164,32 @@ def favor():
     return json.dumps(res)
 
 
+@app.route('/setSuperAdmin', methods=['GET', 'POST'])
+def fasetSuperAdminvor():
+    
+    if request.method == 'GET':
+        oname = request.args.get('oname')
+        uid = request.args.get('id')
+    else:
+        setSuperAdminData = json.loads(unquote(str(request.get_data())[2:-1]))
+        uid = setSuperAdminData['id']
+        oname = setSuperAdminData['oname']
+        
+    res = {}
+
+    conn = sqlite3.connect('NIMS.db')
+    cursor = conn.cursor()
+
+    cursor.execute('insert into org values (?, ?)', (oname, uid))
+    cursor.execute(
+        'insert into id_tag values (?, ?, \'管理员\', \'1\')', (uid, oname))
+    res["status"] = 0
+
+    cursor.close()
+    conn.commit()
+
+    return json.dumps(res)
+
+
 if __name__ == '__main__':
-    app.run('0.0.0.0', port='2333', debug=True)
+    app.run('0.0.0.0', port='2333')
